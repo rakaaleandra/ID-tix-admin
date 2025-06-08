@@ -4,6 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,AlertDialogTitle,AlertDialogTrigger,} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
@@ -35,6 +36,7 @@ interface Schedule {
 interface Pemesanan {
     id: number;
     status_pemesanan:'berhasil' | 'gagal' | 'masalah' | null;
+    bukti_bayar: string;
     schedule: Schedule;
     user: User;
     created_at: string;
@@ -107,7 +109,26 @@ export default function OrderList({pemesanan}:Props) {
                                         <TableCell>{prop.schedule.tanggal_tayang}</TableCell>
                                         <TableCell>{prop.schedule.jam_tayang}</TableCell>
                                         <TableCell>
-                                            <img src="" alt="halo" />
+                                            {/* <img src={`/external-images/${prop.bukti_bayar}`} alt={prop.bukti_bayar} className="w-16 h-16 object-cover cursor-pointer"/> */}
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="outline">Detail Bukti Bayar</Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className='w-8xl'>
+                                                    <AlertDialogHeader>
+                                                    <AlertDialogTitle>{prop.schedule.film.nama_film} {prop.schedule.tanggal_tayang} {prop.schedule.jam_tayang}</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        {/* This action cannot be undone. This will permanently delete your
+                                                        account and remove your data from our servers. */}
+                                                        <img src={`/external-images/${prop.bukti_bayar}`} alt={prop.bukti_bayar} className="h-full"/>
+                                                    </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                    {/* <AlertDialogCancel>Cancel</AlertDialogCancel> */}
+                                                    <AlertDialogAction>Lanjut</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </TableCell>
                                         <TableCell>
                                             <Select value={selectedStatuses[prop.id] || prop.status_pemesanan || ''} onValueChange={(value) => handleStatusChange(prop.id, value)}>

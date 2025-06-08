@@ -41,6 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
+            // 'root' => 'home/rakaaleandra/Kuliah/semester_4/id-tix/storage/app/public',
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
@@ -60,6 +61,12 @@ return [
             'report' => false,
         ],
 
+        'external_images' => [
+            'driver' => 'local',
+            'root' => '/home/rakaaleandra/Kuliah/semester_4/id-tix/storage/app/public',
+            'url' => env('APP_URL') . '/external-images',
+            'visibility' => 'public',
+        ],
     ],
 
     /*

@@ -6,6 +6,8 @@ use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FilmController;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 Route::middleware(['auth', IsAdmin::class,])->group(function () {
     Route::get('dashboard', [MainController::class, 'dashboard'])->name('dashboard');
@@ -15,6 +17,18 @@ Route::middleware(['auth', IsAdmin::class,])->group(function () {
 
     Route::resource('userlist', UserController::class);
     Route::resource('filmlist', FilmController::class);
+
+    Route::get('/external-images/{path}', function ($path) {
+        $path = str_replace('..', '', $path); // keamanan
+
+        $file = Storage::disk('external_images')->path($path);
+
+        if (!file_exists($file)) {
+            abort(404);
+        }
+
+        return response()->file($file);
+    })->where('path', '.*');
 });
 
 Route::get('/', function () {
