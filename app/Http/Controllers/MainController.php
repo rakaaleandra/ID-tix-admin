@@ -15,9 +15,13 @@ class MainController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function dashboard(){
+        return Inertia::render('dashboard');
+    }
+
     public function index()
     {
-        return Inertia::render('dashboard', [
+        return Inertia::render('orderlist', [
             'pemesanan' => Pemesanan::with(['schedule.film', 'schedule.theater', 'user'])->get()
         ]);    
     }
