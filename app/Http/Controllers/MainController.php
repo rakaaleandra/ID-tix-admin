@@ -8,6 +8,7 @@ use App\Models\Pemesanan;
 use App\Models\Film;
 use App\Models\Theater;
 use App\Models\Schedule;
+use App\Models\Ticket;
 use Illuminate\Validation\Rule;
 
 class MainController extends Controller
@@ -39,19 +40,24 @@ class MainController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'id' => 'required|exists:pemesanans,id',
-            'status_pemesanan' => 'nullable|in:berhasil,gagal,masalah,null',
-        ]);
+        // $validated = $request->validate([
+        //     'id' => 'required|exists:pemesanans,id',
+        //     'status_pemesanan' => 'nullable|in:berhasil,gagal,masalah,null',
+        // ]);
 
-        // Cari pemesanan berdasarkan ID
-        $pemesanan = Pemesanan::findOrFail($validated['id']);
+        // // Cari pemesanan berdasarkan ID
+        // $pemesanan = Pemesanan::findOrFail($validated['id']);
+        // $status = $validated['status_pemesanan'] === 'null' ? null : $validated['status_pemesanan'];
 
-        // Update status
-        $pemesanan->status_pemesanan = $validated['status_pemesanan'] === 'null' ? null : $validated['status_pemesanan'];
-        $pemesanan->save();
+        // // Update status
+        // $pemesanan->status_pemesanan = $status;
+        // $pemesanan->save();
 
-        return redirect()->back()->with('success', 'Status pemesanan berhasil diperbarui.');
+        // if (in_array($status, ['gagal', 'masalah'])) {
+        //     $pemesanan->tickets()->update(['status_booking' => false]);
+        // }
+
+        // return redirect()->back()->with('success', 'Status pemesanan berhasil diperbarui.');
     }
 
     /**
@@ -78,12 +84,24 @@ class MainController extends Controller
         $validated = $request->validate([
             'id' => 'required|exists:pemesanans,id',
             'status_pemesanan' => ['required', Rule::in(['berhasil', 'gagal', 'masalah'])],
+            'feedback' => 'nullable|string',
         ]);
-    
+        $status = $validated['status_pemesanan'];
+        $feedback = $validated['feedback'] ?? null;
         $pemesanan = Pemesanan::find($validated['id']);
-        $pemesanan->update(['status_pemesanan' => $validated['status_pemesanan']]);
+        // $pemesanan->update(['status_pemesanan' => $status]);
+        // $pemesanan->update(['feedback' => $feedback]);
+        $pemesanan->update([
+            'status_pemesanan' => $status,
+            'feedback' => $feedback,
+        ]);
+
+        if (in_array($status, ['gagal', 'masalah'])) {
+            $pemesanan->tickets()->update(['status_booking' => false]);
+        }
     
-        return redirect()->back()->with('success', 'Status updated successfully!');
+        // return redirect()->back()->with('success', 'Status updated successfully!');
+        return redirect(route('orderlist'));
     }
 
     /**

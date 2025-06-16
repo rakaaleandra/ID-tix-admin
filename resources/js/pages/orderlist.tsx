@@ -5,9 +5,21 @@ import { Head, router } from '@inertiajs/react';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,AlertDialogTitle,AlertDialogTrigger,} from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
+import { Label } from '@radix-ui/react-label';
+import { Input } from '@/components/ui/input';
 
 interface User{
     id:number;
@@ -35,7 +47,7 @@ interface Schedule {
 
 interface Pemesanan {
     id: number;
-    status_pemesanan:'berhasil' | 'gagal' | 'masalah' | null;
+    status_pemesanan:'berhasil' | 'gagal' | 'masalah' | null | "null";
     bukti_bayar: string;
     schedule: Schedule;
     user: User;
@@ -55,6 +67,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function OrderList({pemesanan}:Props) {
     const [selectedStatuses, setSelectedStatuses] = useState<{ [key: number]: string }>({});
+    const [feedbacks, setFeedback] = useState<{ [key: number]: string }>({});
+    const [statusFilter, setStatusFilter] = useState<string>('semua');
     
     function handleStatusChange(pemesananId: number, status: string) {
         setSelectedStatuses(prev => ({
@@ -62,9 +76,16 @@ export default function OrderList({pemesanan}:Props) {
             [pemesananId]: status
         }));
     }
+    function handleFeedbackChange(pemesananId: number, feedback: string) {
+        setFeedback(prev => ({
+            ...prev,
+            [pemesananId]: feedback
+        }));
+    }
     
     function handleSubmit(pemesananId: number) {
         const status = selectedStatuses[pemesananId];
+        const feedback = feedbacks[pemesananId];
         if (!status) {
             alert('Please select a status first');
             return;
@@ -72,9 +93,73 @@ export default function OrderList({pemesanan}:Props) {
         
         router.patch('/orderlist/update', {
             id: pemesananId,
-            status_pemesanan: status
+            status_pemesanan: status,
+            feedback: feedback
         });
     }
+
+    const filteredPemesanan = pemesanan.filter((p) => {
+        if (statusFilter === 'semua') return true;
+        if (statusFilter === 'null') return p.status_pemesanan === "null";
+        return p.status_pemesanan === statusFilter;
+    });
+
+    function buttonHandle(pemesananId: number){
+        const status = selectedStatuses[pemesananId];
+        const current = pemesanan.find(p => p.id === pemesananId);
+        if (!current) return null;
+        let buttonClass = '';
+
+        if (current.status_pemesanan === "null") {
+            buttonClass = 'bg-orange-600';
+        } else if (current.status_pemesanan === 'berhasil') {
+            buttonClass = 'border-white text-white bg-black';
+        }
+
+        if(status === 'gagal' || status === 'masalah'){
+            return(
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline">Submit</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Feedback</DialogTitle>
+                            <DialogDescription>
+                            Feedback ini bertujuan memberikan ulasan mengapa pemesanannya gagal atau bermasalah.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="feedback">Feedback</Label>
+                                <Input id="feedback" name="name"
+                                    value={feedbacks[pemesananId] || ''}
+                                    onChange={(e) => handleFeedbackChange(pemesananId, e.target.value)} 
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                {/* <Button variant="outline">Cancel</Button> */}
+                                <Button onClick={() => handleSubmit(pemesananId)}>Submit</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )
+        } else {
+            return(
+                <Button
+                    onClick={() => handleSubmit(pemesananId)}
+                    className={buttonClass}
+                >
+                    Submit
+                </Button>
+            )
+        }
+        // return false
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -83,6 +168,21 @@ export default function OrderList({pemesanan}:Props) {
                     <h1 className='mb-8 font-bold text-3xl'>
                         Pemesanan Ticket
                     </h1>
+                    <div className="mb-4 flex items-center gap-4">
+                        <Label>Status Filter:</Label>
+                        <Select onValueChange={(value) => setStatusFilter(value)} defaultValue="">
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Semua Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="semua">Semua</SelectItem>
+                                <SelectItem value="null">Unverified</SelectItem>
+                                <SelectItem value="berhasil">Berhasil</SelectItem>
+                                <SelectItem value="gagal">Gagal</SelectItem>
+                                <SelectItem value="masalah">Masalah</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div>
                         <Table>
                             <TableCaption>A list of your recent invoices.</TableCaption>
@@ -100,7 +200,9 @@ export default function OrderList({pemesanan}:Props) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {pemesanan.map(prop => (
+                                {filteredPemesanan
+                                // .filter(p => !statusFilter || p.status_pemesanan === statusFilter)
+                                .map(prop => (
                                     <TableRow key={prop.id}>
                                         <TableCell className="font-medium">{prop.id}</TableCell>
                                         <TableCell>{prop.user.name}</TableCell>
@@ -143,7 +245,8 @@ export default function OrderList({pemesanan}:Props) {
                                             </Select>
                                         </TableCell>
                                         <TableCell className="">
-                                            <Button onClick={() => handleSubmit(prop.id)}>Submit</Button>
+                                            {buttonHandle(prop.id)}
+                                            {/* <Button onClick={() => handleSubmit(prop.id)}>Submit</Button> */}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -155,16 +258,3 @@ export default function OrderList({pemesanan}:Props) {
         </AppLayout>
     );
 }
-
-
-{/* <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-    </div>
-    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-    </div>
-    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-    </div>
-</div> */}
