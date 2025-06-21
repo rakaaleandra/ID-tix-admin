@@ -109,6 +109,7 @@ export default function OrderList({pemesanan}:Props) {
         const current = pemesanan.find(p => p.id === pemesananId);
         if (!current) return null;
         let buttonClass = '';
+        let buttonVariant = '';
 
         if (current.status_pemesanan === "null") {
             buttonClass = 'bg-orange-600';
@@ -120,7 +121,7 @@ export default function OrderList({pemesanan}:Props) {
             return(
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline">Submit</Button>
+                        <Button variant="default">Submit</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
@@ -151,7 +152,8 @@ export default function OrderList({pemesanan}:Props) {
             return(
                 <Button
                     onClick={() => handleSubmit(pemesananId)}
-                    className={buttonClass}
+                    className={current.status_pemesanan === null ? 'bg-orange-600' : ''}
+                    variant={current.status_pemesanan === 'berhasil' ? 'outline' : 'default'}
                 >
                     Submit
                 </Button>

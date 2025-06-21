@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -32,7 +36,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10)
+        ]);
+
+        event(new Registered($user));
+
+        // return to_route('dashboard');
+        return redirect(route('userlist.index'))->with('success', 'User berhasil ditambah.');
     }
 
     /**
@@ -62,10 +83,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $userlist)
     {
-        $user->delete();
+        $userlist->delete();
 
-        return redirect('/');
+        return redirect(route('userlist.index'))->with('success', 'User berhasil dihapus.');
     }
 }

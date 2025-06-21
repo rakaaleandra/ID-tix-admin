@@ -1,12 +1,27 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { useForm } from 'react-hook-form';
-import React, { useState } from 'react';
+// import { useForm } from 'react-hook-form';
+import React, { useState, FormEventHandler } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+  DialogFooter
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import InputError from '@/components/input-error';
+import { LoaderCircle } from 'lucide-react';
+
 
 interface User{
     id:number;
@@ -28,7 +43,28 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+type RegisterForm = {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+};
+
 export default function UserList({users}:Props) {
+    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('userlist.store'), {
+            onFinish: () => reset('password', 'password_confirmation'),
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="User List" />
@@ -37,6 +73,98 @@ export default function UserList({users}:Props) {
                     <h1 className='mb-8 font-bold text-3xl'>
                         User List
                     </h1>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className='mb-4'>Create User</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <form onSubmit={submit}>
+                                <DialogHeader>
+                                    <DialogTitle>Create User</DialogTitle>
+                                    <DialogDescription>
+                                    Creating User
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4">
+                                    <div className="grid gap-3">
+                                    {/* <Label htmlFor="name-1">Name</Label>
+                                    <Input id="name-1" name="name" defaultValue="Pedro Duarte" /> */}
+                                        <Label htmlFor="name">Name</Label>
+                                        <Input
+                                            id="name"
+                                            type="text"
+                                            required
+                                            autoFocus
+                                            tabIndex={1}
+                                            autoComplete="name"
+                                            value={data.name}
+                                            onChange={(e) => setData('name', e.target.value)}
+                                            disabled={processing}
+                                            placeholder="Full name"
+                                        />
+                                        <InputError message={errors.name} className="mt-2" />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="email">Email address</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            required
+                                            tabIndex={2}
+                                            autoComplete="email"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            disabled={processing}
+                                            placeholder="email@example.com"
+                                        />
+                                        <InputError message={errors.email} />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="password">Password</Label>
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            required
+                                            tabIndex={3}
+                                            autoComplete="new-password"
+                                            value={data.password}
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            disabled={processing}
+                                            placeholder="Password"
+                                        />
+                                        <InputError message={errors.password} />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="password_confirmation">Confirm password</Label>
+                                        <Input
+                                            id="password_confirmation"
+                                            type="password"
+                                            required
+                                            tabIndex={4}
+                                            autoComplete="new-password"
+                                            value={data.password_confirmation}
+                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                            disabled={processing}
+                                            placeholder="Confirm password"
+                                        />
+                                        <InputError message={errors.password_confirmation} />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                        {/* <Button type="submit">Save changes</Button> */}
+                                        <Button type="submit" className="" tabIndex={5} disabled={processing}>
+                                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                                            Create account
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                     <div>
                         <Table>
                             <TableCaption>A list of your recent invoices.</TableCaption>
@@ -64,7 +192,7 @@ export default function UserList({users}:Props) {
                                         </TableCell>
                                         <TableCell className="">
                                             <Button variant="destructive">
-                                                <Link href={route("userlist.destroy", user.id)}>
+                                                <Link href={route("userlist.destroy", user.id)} method="delete" as="button">
                                                     Delete
                                                 </Link>
                                             </Button>
