@@ -65,6 +65,8 @@ export default function UserList({users}:Props) {
         });
     };
 
+    const [search, setSearch] = useState('');
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="User List" />
@@ -87,8 +89,6 @@ export default function UserList({users}:Props) {
                                 </DialogHeader>
                                 <div className="grid gap-4">
                                     <div className="grid gap-3">
-                                    {/* <Label htmlFor="name-1">Name</Label>
-                                    <Input id="name-1" name="name" defaultValue="Pedro Duarte" /> */}
                                         <Label htmlFor="name">Name</Label>
                                         <Input
                                             id="name"
@@ -165,6 +165,20 @@ export default function UserList({users}:Props) {
                             </form>
                         </DialogContent>
                     </Dialog>
+                    <div className="flex items-center mb-4">
+                        <Input
+                            type="text"
+                            placeholder="Search email..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="max-w-sm"
+                        />
+                        <Button className='ml-2' onClick={() => {
+                            router.get(route('userlist.index'), { search });
+                        }} disabled={processing} variant="secondary">
+                            Search
+                        </Button>
+                    </div>
                     <div>
                         <Table>
                             <TableCaption>A list of your recent invoices.</TableCaption>

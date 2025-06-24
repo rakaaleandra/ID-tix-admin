@@ -40,40 +40,33 @@ class MainController extends Controller
      */
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'id' => 'required|exists:pemesanans,id',
-        //     'status_pemesanan' => 'nullable|in:berhasil,gagal,masalah,null',
-        // ]);
 
-        // // Cari pemesanan berdasarkan ID
-        // $pemesanan = Pemesanan::findOrFail($validated['id']);
-        // $status = $validated['status_pemesanan'] === 'null' ? null : $validated['status_pemesanan'];
-
-        // // Update status
-        // $pemesanan->status_pemesanan = $status;
-        // $pemesanan->save();
-
-        // if (in_array($status, ['gagal', 'masalah'])) {
-        //     $pemesanan->tickets()->update(['status_booking' => false]);
-        // }
-
-        // return redirect()->back()->with('success', 'Status pemesanan berhasil diperbarui.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function qrscan()
     {
         //
+        return Inertia::render('qrscan', [
+            'pemesanan' => Pemesanan::with(['schedule.film', 'schedule.theater', 'user'])->get()
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function updateStatus(Request $request)
     {
-        //
+        $request->validate([
+            'id' => 'required|exists:pemesanans,id',
+            'status_pemesanan' => 'required|string|in:kadaluarsa',
+        ]);
+
+        $pemesanan = Pemesanan::findOrFail($request->id);
+        $pemesanan->status_pemesanan = $request->status_pemesanan;
+        $pemesanan->save();
+
+        // return response()->json(['message' => 'Status updated successfully']);
+        return redirect(route('qrscan'));
     }
 
     /**

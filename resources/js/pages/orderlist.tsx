@@ -82,6 +82,9 @@ export default function OrderList({pemesanan}:Props) {
             [pemesananId]: feedback
         }));
     }
+
+    const [searchUser, setSearchUser] = useState<string>('');
+    const [searchFilm, setSearchFilm] = useState<string>('');
     
     function handleSubmit(pemesananId: number) {
         const status = selectedStatuses[pemesananId];
@@ -98,10 +101,20 @@ export default function OrderList({pemesanan}:Props) {
         });
     }
 
+    // const filteredPemesanan = pemesanan.filter((p) => {
+    //     if (statusFilter === 'semua') return true;
+    //     if (statusFilter === 'null') return p.status_pemesanan === "null";
+    //     return p.status_pemesanan === statusFilter;
+    // });
     const filteredPemesanan = pemesanan.filter((p) => {
-        if (statusFilter === 'semua') return true;
-        if (statusFilter === 'null') return p.status_pemesanan === "null";
-        return p.status_pemesanan === statusFilter;
+    const matchesStatus = statusFilter === 'semua' ? true : (
+        statusFilter === 'null' ? p.status_pemesanan === "null" : p.status_pemesanan === statusFilter
+    );
+
+    const matchesUser = p.user.name.toLowerCase().includes(searchUser.toLowerCase());
+    const matchesFilm = p.schedule.film.nama_film.toLowerCase().includes(searchFilm.toLowerCase());
+
+    return matchesStatus && matchesUser && matchesFilm;
     });
 
     function buttonHandle(pemesananId: number){
@@ -184,6 +197,24 @@ export default function OrderList({pemesanan}:Props) {
                                 <SelectItem value="masalah">Masalah</SelectItem>
                             </SelectContent>
                         </Select>
+                            <Label>Cari Nama Pembeli:</Label>
+                            <Input
+                                type="text"
+                                placeholder="Cari nama pembeli..."
+                                value={searchUser}
+                                onChange={(e) => setSearchUser(e.target.value)}
+                                className="w-[200px]"
+                            />
+                            <Label>Cari Nama Film:</Label>
+                            <Input
+                                type="text"
+                                placeholder="Cari nama film..."
+                                value={searchFilm}
+                                onChange={(e) => setSearchFilm(e.target.value)}
+                                className="w-[200px]"
+                            />
+                        {/* <div className="mb-4 flex items-center gap-4">
+                        </div> */}
                     </div>
                     <div>
                         <Table>

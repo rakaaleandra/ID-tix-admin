@@ -13,6 +13,7 @@ class Pemesanan extends Model
         'user_id',
         'schedule_id',
         'bukti_bayar',
+        'code_pemesanan',
         'status_pemesanan',
         'feedback'
     ];
