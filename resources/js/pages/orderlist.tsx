@@ -47,7 +47,7 @@ interface Schedule {
 
 interface Pemesanan {
     id: number;
-    status_pemesanan:'berhasil' | 'gagal' | 'masalah' | null | "null";
+    status_pemesanan:'berhasil' | 'gagal' | 'masalah' | null | "null" | 'kadaluarsa';
     bukti_bayar: string;
     schedule: Schedule;
     user: User;
@@ -107,14 +107,14 @@ export default function OrderList({pemesanan}:Props) {
     //     return p.status_pemesanan === statusFilter;
     // });
     const filteredPemesanan = pemesanan.filter((p) => {
-    const matchesStatus = statusFilter === 'semua' ? true : (
-        statusFilter === 'null' ? p.status_pemesanan === "null" : p.status_pemesanan === statusFilter
-    );
+        const matchesStatus = statusFilter === 'semua' ? true : (
+            statusFilter === 'null' ? p.status_pemesanan === "null" : p.status_pemesanan === statusFilter
+        );
 
-    const matchesUser = p.user.name.toLowerCase().includes(searchUser.toLowerCase());
-    const matchesFilm = p.schedule.film.nama_film.toLowerCase().includes(searchFilm.toLowerCase());
+        const matchesUser = p.user.name.toLowerCase().includes(searchUser.toLowerCase());
+        const matchesFilm = p.schedule.film.nama_film.toLowerCase().includes(searchFilm.toLowerCase());
 
-    return matchesStatus && matchesUser && matchesFilm;
+        return matchesStatus && matchesUser && matchesFilm;
     });
 
     function buttonHandle(pemesananId: number){
@@ -162,15 +162,30 @@ export default function OrderList({pemesanan}:Props) {
                 </Dialog>
             )
         } else {
-            return(
-                <Button
-                    onClick={() => handleSubmit(pemesananId)}
-                    className={current.status_pemesanan === null ? 'bg-orange-600' : ''}
-                    variant={current.status_pemesanan === 'berhasil' ? 'outline' : 'default'}
-                >
-                    Submit
-                </Button>
-            )
+            if(current.status_pemesanan === 'kadaluarsa'){
+                return (
+                    <Button
+                        disabled
+                        variant="outline"
+                        className="bg-gray-500 text-white cursor-not-allowed"
+                    >
+                        Expired
+                    </Button>
+                )
+            } else {
+                return(
+                    <Button
+                        onClick={() => handleSubmit(pemesananId)}
+                        // className={current.status_pemesanan === null ? 'bg-orange-600' : ''}
+                        variant={current.status_pemesanan === 'berhasil' ||
+                            current.status_pemesanan === 'gagal' ||
+                            current.status_pemesanan === 'masalah'
+                            ? 'outline' : 'default'}
+                    >
+                        Submit
+                    </Button>
+                )
+            }
         }
         // return false
     }
@@ -192,9 +207,10 @@ export default function OrderList({pemesanan}:Props) {
                             <SelectContent>
                                 <SelectItem value="semua">Semua</SelectItem>
                                 <SelectItem value="null">Unverified</SelectItem>
-                                <SelectItem value="berhasil">Berhasil</SelectItem>
-                                <SelectItem value="gagal">Gagal</SelectItem>
-                                <SelectItem value="masalah">Masalah</SelectItem>
+                                <SelectItem value="berhasil">Success</SelectItem>
+                                <SelectItem value="gagal">Fail</SelectItem>
+                                <SelectItem value="masalah">Problem</SelectItem>
+                                <SelectItem value="kadaluarsa">Expired</SelectItem>
                             </SelectContent>
                         </Select>
                             <Label>Cari Nama Pembeli:</Label>
@@ -274,12 +290,12 @@ export default function OrderList({pemesanan}:Props) {
                                                     <SelectItem value="berhasil" >Success</SelectItem>
                                                     <SelectItem value="gagal" >Fail</SelectItem>
                                                     <SelectItem value="masalah" >Trouble</SelectItem>
+                                                    <SelectItem className='hidden' value="kadaluarsa" >Expired</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </TableCell>
                                         <TableCell className="">
                                             {buttonHandle(prop.id)}
-                                            {/* <Button onClick={() => handleSubmit(prop.id)}>Submit</Button> */}
                                         </TableCell>
                                     </TableRow>
                                 ))}

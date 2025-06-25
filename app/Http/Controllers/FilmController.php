@@ -56,7 +56,8 @@ class FilmController extends Controller
             'produksi' => 'required|string',
             'casts' => 'required|string',
             'sinopsis' => 'required|string',
-            'tampil_web' => 'required|boolean',
+            'tayang' => 'nullable|boolean',
+            'tampil_web' => 'nullable|boolean',
         ]);
 
         Film::create($validated);
@@ -97,7 +98,8 @@ class FilmController extends Controller
             'produksi' => 'required|string|max:255',
             'casts' => 'required|string|max:255',
             'sinopsis' => 'required|string',
-            'tampil_web' => 'required|boolean',
+            'tayang' => 'nullable|boolean',
+            'tampil_web' => 'nullable|boolean',
         ]);
 
         // Cari film berdasarkan ID

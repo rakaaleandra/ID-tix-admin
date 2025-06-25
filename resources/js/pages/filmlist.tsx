@@ -189,25 +189,48 @@ export default function Dashboard({films}:Props) {
 
                                 {/* BAWAH */}
                                 <div className="mt-6 space-y-4">
-                                <div>
-                                    <Label htmlFor="sinopsis">Sinopsis</Label>
-                                    <textarea
-                                    id="sinopsis"
-                                    className="w-full border rounded px-3 py-2 min-h-[100px]"
-                                    value={data.sinopsis}
-                                    onChange={e => setData('sinopsis', e.target.value)}
-                                    />
-                                </div>
+                                    <div>
+                                        <Label htmlFor="sinopsis">Sinopsis</Label>
+                                        <textarea
+                                        id="sinopsis"
+                                        className="w-full border rounded px-3 py-2 min-h-[100px]"
+                                        value={data.sinopsis}
+                                        onChange={e => setData('sinopsis', e.target.value)}
+                                        />
+                                    </div>
 
-                                <div className="flex items-center gap-2">
-                                    <input
-                                    type="checkbox"
-                                    id="tampil_web"
-                                    checked={data.tampil_web}
-                                    onChange={e => setData('tampil_web', e.target.checked)}
-                                    />
-                                    <Label htmlFor="tampil_web">Tampilkan di Website</Label>
-                                </div>
+                                    {/* <div className="flex items-center gap-2">
+                                        <input
+                                        type="checkbox"
+                                        id="tampil_web"
+                                        checked={data.tampil_web}
+                                        onChange={e => setData('tampil_web', e.target.checked)}
+                                        />
+                                        <Label htmlFor="tampil_web">Tampilkan di Website</Label>
+                                    </div> */}
+                                    <div className='flex gap-4'>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                            type="checkbox"
+                                            id="tayang"
+                                            checked={data.tayang}
+                                            onChange={e => setData('tayang', e.target.checked)}
+                                            />
+                                            <Label htmlFor="tampil_web">Tayang</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                            type="checkbox"
+                                            id="tampil_web"
+                                            checked={data.tampil_web}
+                                            onChange={e => setData('tampil_web', e.target.checked)}
+                                            />
+                                            <Label htmlFor="tampil_web">Tampilkan di Website</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <p>Catatan : Tambahkan file poster pada storage website utama</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <DialogFooter className="mt-4">
@@ -229,7 +252,7 @@ export default function Dashboard({films}:Props) {
                         />
                         <Button type="submit">Search</Button>
                     </form>
-                    <div className='grid grid-cols-2 gap-6'>
+                    <div className='grid grid-cols-1 xl:grid-cols-2 gap-6'>
                         { films.map((film) => (
                             <div key={film.id} className='border border-gray-300 dark:border-gray-800 p-4 flex flex-row gap-6 rounded-2xl'>
                                 <img src={`/external-images/FilmPoster/${film.poster_film}`} alt={film.poster_film} className="h-44 w-28 rounded-2xl object-cover"/>
@@ -374,6 +397,12 @@ export default function Dashboard({films}:Props) {
                                                                 />
                                                                 <Label htmlFor="tampil_web">Tampilkan di Website</Label>
                                                             </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p>
+                                                                Catatan : Jika mau mengganti poster, Anda harus menghapus poster lama terlebih dahulu kemudian upload poster baru
+                                                                di storage website utama.
+                                                            </p>
                                                         </div>
                                                     </div>
 
