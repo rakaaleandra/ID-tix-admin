@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 interface User{
     id:number;
     name : string;
+    email: string;
 }
 
 interface Film {
@@ -101,17 +102,12 @@ export default function OrderList({pemesanan}:Props) {
         });
     }
 
-    // const filteredPemesanan = pemesanan.filter((p) => {
-    //     if (statusFilter === 'semua') return true;
-    //     if (statusFilter === 'null') return p.status_pemesanan === "null";
-    //     return p.status_pemesanan === statusFilter;
-    // });
     const filteredPemesanan = pemesanan.filter((p) => {
         const matchesStatus = statusFilter === 'semua' ? true : (
             statusFilter === 'null' ? p.status_pemesanan === "null" : p.status_pemesanan === statusFilter
         );
 
-        const matchesUser = p.user.name.toLowerCase().includes(searchUser.toLowerCase());
+        const matchesUser = p.user.email.toLowerCase().includes(searchUser.toLowerCase());
         const matchesFilm = p.schedule.film.nama_film.toLowerCase().includes(searchFilm.toLowerCase());
 
         return matchesStatus && matchesUser && matchesFilm;
@@ -213,10 +209,10 @@ export default function OrderList({pemesanan}:Props) {
                                 <SelectItem value="kadaluarsa">Expired</SelectItem>
                             </SelectContent>
                         </Select>
-                            <Label>Cari Nama Pembeli:</Label>
+                            <Label>Cari Email Pembeli:</Label>
                             <Input
                                 type="text"
-                                placeholder="Cari nama pembeli..."
+                                placeholder="Cari email pembeli..."
                                 value={searchUser}
                                 onChange={(e) => setSearchUser(e.target.value)}
                                 className="w-[200px]"
@@ -238,7 +234,7 @@ export default function OrderList({pemesanan}:Props) {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[100px]">ID</TableHead>
-                                    <TableHead>Pembeli</TableHead>
+                                    <TableHead>Email Pembeli</TableHead>
                                     <TableHead>Film</TableHead>
                                     <TableHead>Theater</TableHead>
                                     <TableHead>Tanggal</TableHead>
@@ -254,7 +250,7 @@ export default function OrderList({pemesanan}:Props) {
                                 .map(prop => (
                                     <TableRow key={prop.id}>
                                         <TableCell className="font-medium">{prop.id}</TableCell>
-                                        <TableCell>{prop.user.name}</TableCell>
+                                        <TableCell>{prop.user.email}</TableCell>
                                         <TableCell>{prop.schedule.film.nama_film}</TableCell>
                                         <TableCell>{prop.schedule.theater.nama_bioskop}</TableCell>
                                         <TableCell>{prop.schedule.tanggal_tayang}</TableCell>

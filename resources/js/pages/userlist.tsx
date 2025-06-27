@@ -189,7 +189,7 @@ export default function UserList({users}:Props) {
                                     <TableHead>Email</TableHead>
                                     <TableHead>Created At</TableHead>
                                     <TableHead>Email Verified At</TableHead>
-                                    <TableHead>Update</TableHead>
+                                    {/* <TableHead>Update</TableHead> */}
                                     <TableHead>Delete</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -201,9 +201,9 @@ export default function UserList({users}:Props) {
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>{user.created_at}</TableCell>
                                         <TableCell>{user.email_verified_at}</TableCell>
-                                        <TableCell>
+                                        {/* <TableCell>
                                             <Button className='transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-white hover:bg-orange-600'>Update</Button>
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell className="">
                                             <Button variant="destructive">
                                                 <Link href={route("userlist.destroy", user.id)} method="delete" as="button">
